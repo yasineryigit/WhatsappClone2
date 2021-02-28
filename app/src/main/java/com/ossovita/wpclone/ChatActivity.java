@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -38,7 +39,7 @@ public class ChatActivity extends AppCompatActivity {
         chatEditText = findViewById(R.id.chatEditText);
         chatListView = findViewById(R.id.chatListView);
         aa = new ArrayAdapter(this, android.R.layout.simple_list_item_1,messages);
-
+        chatListView.setAdapter(aa);
         //Message classı içerisinde sorgu yapmak üzere query objesi oluşturduk
         //query1 bizim gönderdiğimiz mesajları getirecek
         ParseQuery<ParseObject> query1 = new ParseQuery<ParseObject>("Message");
@@ -56,6 +57,27 @@ public class ChatActivity extends AppCompatActivity {
         queries.add(query1);
         queries.add(query2);
 
+        //Bizden giden ve oradan gelen mesaj objelerini alır ve zamana göre sıralar
+        ParseQuery<ParseObject> query = ParseQuery.or(queries);
+        query.orderByAscending("createdAt");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if(e==null&&objects.size()>0){
+                    messages.clear();
+                    for(ParseObject message : objects){
+                        /*mesaj objelerinden mesajı alır ve eğer bu bizim gödnerdiğimiz mesaj ise
+                        başına > işareti koyarak belli ediyoruz                 */
+                       String messageContent = message.getString("message");
+                       if(message.getString("sender").equals(ParseUser.getCurrentUser().getUsername())){
+                           messageContent = "> "+messageContent;
+                       }//tüm mesaj metinlerini alıp diziye atıyoruz
+                        messages.add(messageContent);
+                    }
+                    aa.notifyDataSetChanged();
+                }
+            }
+        });
 
 
 
@@ -66,15 +88,19 @@ public class ChatActivity extends AppCompatActivity {
     public void sendChat(View v){
         //Message classı içerisine bir obje gönderiyoruz
         ParseObject message = new ParseObject("Message");
+        String messageContent = chatEditText.getText().toString();
         message.put("sender", ParseUser.getCurrentUser().getUsername());
         message.put("recipient",activeUser);
-        message.put("message",chatEditText.getText().toString());
+        message.put("message",messageContent);
+
         chatEditText.setText("");
         message.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                if(e!=null){
-                    Toast.makeText(ChatActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                if(e==null){
+                    //Yazdığımız mesajın direkt olarak buraya listeye düşmesi için adapteri notify ediyoruz
+                   messages.add(messageContent);
+                   aa.notifyDataSetChanged();
                 }
             }
         });
