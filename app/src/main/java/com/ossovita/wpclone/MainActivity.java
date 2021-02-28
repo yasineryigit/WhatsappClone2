@@ -2,6 +2,7 @@ package com.ossovita.wpclone;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -30,6 +31,9 @@ public class MainActivity extends AppCompatActivity {
         loginTextView = findViewById(R.id.textView);
         button = findViewById(R.id.button);
         setTitle("Whatsapp Login");
+        if(ParseUser.getCurrentUser()!=null){//giriş yapmış kullanıcı varsa direkt yönlendir
+            goNext();
+        }
 
     }
 
@@ -76,18 +80,18 @@ public class MainActivity extends AppCompatActivity {
 
     public void toggleLoginMode(View v){
         if (loginModeActive) {
-            loginTextView.setText("or, Sign up");
-            button.setText("Login");
-            loginModeActive=false;
-        }else{
             loginTextView.setText("or, Login");
             button.setText("Sign up");
+            loginModeActive=false;
+        }else{
+            loginTextView.setText("or, Sign up");
+            button.setText("Login");
             loginModeActive=true;
 
         }
     }
 
     private void goNext() {
-
+        startActivity(new Intent(MainActivity.this,UserListActivity.class));
     }
 }
