@@ -2,9 +2,13 @@ package com.ossovita.wpclone;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.Parse;
@@ -30,6 +34,15 @@ public class UserListActivity extends AppCompatActivity {
         aa = new ArrayAdapter(this, android.R.layout.simple_list_item_1,users);
         listView.setAdapter(aa);
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(getApplicationContext(),ChatActivity.class);
+                intent.putExtra("username",users.get(i));//hangi elemana tıkladıysa gönder
+                startActivity(intent);
+            }
+        });
+
         //ParseUser bölümünde arama yapacak bir query objesi oluşturduk
         ParseQuery<ParseUser> query = ParseUser.getQuery();
         query.whereNotEqualTo("username",ParseUser.getCurrentUser().getUsername());
@@ -42,7 +55,7 @@ public class UserListActivity extends AppCompatActivity {
                     }
                     aa.notifyDataSetChanged();
                 }else{
-
+                    Toast.makeText(UserListActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
