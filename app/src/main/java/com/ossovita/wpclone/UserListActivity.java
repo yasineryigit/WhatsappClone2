@@ -30,8 +30,9 @@ public class UserListActivity extends AppCompatActivity {
         aa = new ArrayAdapter(this, android.R.layout.simple_list_item_1,users);
         listView.setAdapter(aa);
 
-        ParseQuery<ParseUser> query = ParseUser.getQuery();//ParseUser objesi arayacak sorgu objesi oluşturduk
-        query.whereEqualTo("username",ParseUser.getCurrentUser().getUsername());
+        //ParseUser bölümünde arama yapacak bir query objesi oluşturduk
+        ParseQuery<ParseUser> query = ParseUser.getQuery();
+        query.whereNotEqualTo("username",ParseUser.getCurrentUser().getUsername());
         query.findInBackground(new FindCallback<ParseUser>() {
             @Override
             public void done(List<ParseUser> objects, ParseException e) {

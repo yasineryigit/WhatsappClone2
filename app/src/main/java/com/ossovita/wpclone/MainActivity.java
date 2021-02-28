@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void goNext() {
+        finish();
         startActivity(new Intent(MainActivity.this,UserListActivity.class));
     }
 }
